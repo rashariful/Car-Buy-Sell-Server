@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, } = require('mongodb');
+const { MongoClient, ObjectId, } = require('mongodb');
 const app = express();
 require("dotenv").config()
 const cors = require('cors');
@@ -12,21 +12,21 @@ app.use(express.json())
 
 
 
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@used-car-museum.jf287ra.mongodb.net/?retryWrites=true&w=majority`;
 
-
-
-
-
-const uri = `mongodb://localhost:27017`;
 const client = new MongoClient(uri)
 
-const productsCollection = client.db('doctorsPortal').collection('products')
+const productsCollection = client.db('usedCarMuseum').collection('products')
+const bookingsCollection = client.db('usedCarMuseum').collection('bookings')
+const usersCollection = client.db('usedCarMuseum').collection('users')
+
 
 async function dbConnect() {
     try {
         await client.connect()
         console.log('mongodb connected with server');
     } catch (error) {
+
         console.log(error);
     }
 }
@@ -44,6 +44,21 @@ app.post('/products', async (req, res) =>{
    }
 })
 
+app.get('/products', async (req, res) => {
+    try {
+        const brand = req.query.brand;
+        const query = { brand: brand }
+        console.log(query);
+        const result = await productsCollection.find(query).toArray()
+        res.send(result)
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+// all product get from here
+
 app.get('/products', async ( req, res) =>{
     try {
         const query = {}
@@ -56,6 +71,91 @@ app.get('/products', async ( req, res) =>{
 })
 
 
+app.get('/products', async ( req, res) =>{
+    try {
+        let query = {};
+        console.log(req.query);
+        if (req.query.brandName){
+            query={
+                brandName: req.query.brandName
+            }
+        }
+        const result = await productsCollection.find(query).toArray()
+        res.send(result)
+    } 
+    catch (error) {
+        console.log(error.message);
+    }
+})
+
+
+
+
+app.delete('/products/:id', async (req, res) =>{
+  try {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) }
+      const result = await productsCollection.deleteOne(query)
+      res.send(result)
+  } catch (error) {
+    console.log(error.message);
+  }
+})
+
+
+
+
+
+
+app.get('/bookings', async (req, res) => {
+  try {
+      const email = req.query.email;
+      const query = { email: email }
+      const bookins = await bookingsCollection.find(query).toArray()
+      res.send(bookins)
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+app.post('/bookings', async (req, res) => {
+  try {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking)
+      res.send(result)
+  } catch (error) {
+    console.log(error);
+  }
+
+})
+
+app.delete('/bookings/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) }
+    console.log(query);
+    const result = await bookingsCollection.deleteOne(query)
+    res.send(result)
+})
+
+
+app.post('/users', async (req, res) => {
+    const user = req.body;
+    const result = await usersCollection.insertOne(user)
+    res.send(result)
+})
+
+app.get('/users', async (req, res) => {
+    const query = {}
+    const result = await usersCollection.find(query).toArray()
+    res.send(result)
+})
+
+app.delete('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) }
+    const result = await usersCollection.deleteOne(query)
+    res.send(result)
+})
 
 
 
@@ -68,8 +168,8 @@ app.get('/products', async ( req, res) =>{
 
 
 app.get('/', (req, res) => {
-    res.send('Doctor portal server is running')
+    res.send('assingment server is running')
 })
 app.listen(port, () => {
-    console.log(`Doctor portal server is running on: ${port}`);
+    console.log(`assingment server is running on: ${port}`);
 })
