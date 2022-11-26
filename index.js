@@ -65,6 +65,7 @@ app.get('/products/:brand', async (req, res) => {
         const brand = req.params.brand;
         const query = { brand: brand }
         const result = await productsCollection.find(query).toArray()
+        console.log(result);
         res.send(result)
     } catch (error) {
         console.log(error);
