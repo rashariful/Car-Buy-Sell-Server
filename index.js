@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ObjectId, } = require('mongodb');
 const app = express();
 require("dotenv").config()
@@ -9,6 +10,48 @@ const port = process.env.PORT || 5000
 // Middle ware
 app.use(cors())
 app.use(express.json())
+
+// JWT verify Token function 
+function verifyJWT(req, res, next) {
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send('unauthorized access');
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'forbidden access' })
+        }
+        req.decoded = decoded;
+        next();
+    })
+
+}
+
+
+// verify admin function
+async function verifyAdmin(req, res, next) {
+    const requester = req.decoded?.email;
+    // console.log('your crush mail', requester);
+    // console.log(`requester `, requester);
+    const requesterInfo = await usersCollection.findOne({ email: requester })
+    // console.log(`requesterInfo `, requesterInfo);
+    const requesterRole = requesterInfo?.role;
+    console.log(`requesterRole `, requesterRole);
+    // if (requesterInfo?.role === 'admin') {
+    //     return next();
+    // }
+    if (!requesterInfo?.role === 'admin') {
+        return res.status(401).send({
+            message: `You are not admin`,
+            status: 401
+        })
+    }
+    return next();
+}
 
 
 
@@ -44,20 +87,16 @@ app.post('/products', async (req, res) =>{
    }
 })
 
-
-
-app.get('/products', async ( req, res) =>{
+app.get('/products', async (req, res) => {
     try {
-        const query = {}
+        const email = req.query.email;
+        const query = { email: email }
         const result = await productsCollection.find(query).toArray()
         res.send(result)
-    } 
-    catch (error) {
-        console.log(error.message);
+    } catch (error) {
+        console.log(error);
     }
 })
-
-
 
 app.get('/products/:brand', async (req, res) => {
    
@@ -65,16 +104,11 @@ app.get('/products/:brand', async (req, res) => {
         const brand = req.params.brand;
         const query = { brand: brand }
         const result = await productsCollection.find(query).toArray()
-        console.log(result);
         res.send(result)
     } catch (error) {
         console.log(error);
     }
 })
-
-
-
-
 
 
 app.delete('/products/:id', async (req, res) =>{
@@ -87,10 +121,6 @@ app.delete('/products/:id', async (req, res) =>{
     console.log(error.message);
   }
 })
-
-
-
-
 
 
 app.get('/bookings', async (req, res) => {
@@ -124,10 +154,18 @@ app.delete('/bookings/:id', async (req, res) => {
 })
 
 
+
+
+
 app.post('/users', async (req, res) => {
-    const user = req.body;
-    const result = await usersCollection.insertOne(user)
-    res.send(result)
+    try {
+        const user = req.body;
+            const result = await usersCollection.insertOne(user)
+            res.send(result)
+       
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 app.get('/users', async (req, res) => {
@@ -143,7 +181,19 @@ app.delete('/users/:id', async (req, res) => {
     res.send(result)
 })
 
+app.put('/users/verify/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: ObjectId(id) }
+    const options = { upsert: true }
+    const updatedDoc = {
+        $set: {
+            role: 'verifySeller'
+        }
+    }
+    const result = await usersCollection.updateOne(filter, updatedDoc, options)
+    res.send(result)
 
+})
 
 
 
