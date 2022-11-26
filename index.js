@@ -44,20 +44,7 @@ app.post('/products', async (req, res) =>{
    }
 })
 
-app.get('/products', async (req, res) => {
-    try {
-        const brand = req.query.brand;
-        const query = { brand: brand }
-        console.log(query);
-        const result = await productsCollection.find(query).toArray()
-        res.send(result)
-    } catch (error) {
-        console.log(error);
-    }
-})
 
-
-// all product get from here
 
 app.get('/products', async ( req, res) =>{
     try {
@@ -71,22 +58,20 @@ app.get('/products', async ( req, res) =>{
 })
 
 
-app.get('/products', async ( req, res) =>{
+
+app.get('/products/:brand', async (req, res) => {
+   
     try {
-        let query = {};
-        console.log(req.query);
-        if (req.query.brandName){
-            query={
-                brandName: req.query.brandName
-            }
-        }
+        const brand = req.params.brand;
+        const query = { brand: brand }
         const result = await productsCollection.find(query).toArray()
         res.send(result)
-    } 
-    catch (error) {
-        console.log(error.message);
+    } catch (error) {
+        console.log(error);
     }
 })
+
+
 
 
 
