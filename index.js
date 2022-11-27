@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ObjectId, } = require('mongodb');
 const app = express();
 require("dotenv").config()
+
+const stripe = require("stripe")('sk_test_51M8WntKhkwZTuCQFitjSFyKhkTyOUmPQQJEByceC6Xfs6Tycg0Dx505t0385lJWcBMee8gy3deGjq2CuUOk6Sdnv00kynOsLUd');
+
+
 const cors = require('cors');
 const port = process.env.PORT || 5000
 
@@ -10,6 +14,7 @@ const port = process.env.PORT || 5000
 // Middle ware
 app.use(cors())
 app.use(express.json())
+app.use(express.static("public"));
 
 // JWT verify Token function 
 function verifyJWT(req, res, next) {
@@ -153,6 +158,14 @@ app.delete('/bookings/:id', async (req, res) => {
     res.send(result)
 })
 
+app.get('/bookings/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) }
+    console.log(query);
+    const result = await bookingsCollection.findOne(query)
+    res.send(result)
+})
+
 
 
 
@@ -196,9 +209,30 @@ app.put('/users/verify/:id', async (req, res) => {
 })
 
 
+const calculateOrderAmount = (items) => {
 
+    return 1400;
+};
 
+app.post("/create-payment-intent", async (req, res) => {
+    const { booking } = req.body;
+    const price = booking.price;
+    const amount = price * 100;
 
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: calculateOrderAmount(items),
+        currency: "usd",
+        amount: amount,
+        payment_methods_types: [
+            "card"
+        ]  
+    }); 
+
+    res.send({
+        clientSecret: paymentIntent.client_secret,
+    });
+});
 
 
 
