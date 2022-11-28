@@ -142,8 +142,10 @@ app.get('/bookings', async (req, res) => {
 
 app.post('/bookings', async (req, res) => {
   try {
+    const id = req.params.id
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking)
+      const bookingDelete = await bookingsCollection.deleteOne(booking)
       res.send(result)
   } catch (error) {
     console.log(error);
@@ -199,7 +201,7 @@ app.put('/users/verify/:id', async (req, res) => {
     const options = { upsert: true }
     const updatedDoc = {
         $set: {
-            role: 'verifySeller'
+            sellerStatus: 'verifySeller'
         }
     }
     const result = await usersCollection.updateOne(filter, updatedDoc, options)
