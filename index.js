@@ -142,10 +142,8 @@ app.get('/bookings', async (req, res) => {
 
 app.post('/bookings', async (req, res) => {
   try {
-    const id = req.params.id
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking)
-      const bookingDelete = await bookingsCollection.deleteOne(booking)
       res.send(result)
   } catch (error) {
     console.log(error);
@@ -188,12 +186,62 @@ app.get('/users', async (req, res) => {
     res.send(result)
 })
 
+// get admin api 
+app.get('/user/admin/:email', async (req, res) => {
+    try {
+
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email: email });
+        const isAdmin = user?.role === 'admin';
+        res.send({
+            isAdmin: isAdmin
+        })
+
+    } catch (error) {
+        console.log(error);
+    }
+})
+// get seller api 
+app.get('/user/seller/:email', async (req, res) => {
+    try {
+
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email: email });
+        const isSeller = user?.role === 'seller';
+        res.send({
+            isSeller: isSeller
+        })
+
+    } catch (error) {
+        console.log(error);
+    }
+})
+// get Buyer api 
+app.get('/user/buyer/:email', async (req, res) => {
+    try {
+
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email: email });
+        const isBuyer = user?.role === 'buyer';
+        res.send({
+            isBuyer: isBuyer
+        })
+
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
+
 app.delete('/users/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) }
     const result = await usersCollection.deleteOne(query)
     res.send(result)
 })
+
 
 app.put('/users/verify/:id', async (req, res) => {
     const id = req.params.id;
