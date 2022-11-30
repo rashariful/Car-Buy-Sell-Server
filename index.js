@@ -36,7 +36,6 @@ function verifyJWT(req, res, next) {
 
 }
 
-
 // verify admin function
 async function verifyAdmin(req, res, next) {
     const requester = req.decoded?.email;
@@ -81,7 +80,7 @@ async function dbConnect() {
 }
 dbConnect()
 
-
+// post product
 app.post('/products', async (req, res) =>{
    try {
        const product = req.body;
@@ -92,7 +91,7 @@ app.post('/products', async (req, res) =>{
     
    }
 })
-
+// get products by email
 app.get('/products', async (req, res) => {
     try {
         const email = req.query.email;
@@ -103,7 +102,7 @@ app.get('/products', async (req, res) => {
         console.log(error);
     }
 })
-
+// product search by brand name
 app.get('/products/:brand', async (req, res) => {
    
     try {
@@ -115,21 +114,19 @@ app.get('/products/:brand', async (req, res) => {
         console.log(error);
     }
 })
-
-app.get('/products/:boost', async (req, res) => {
+// get advertise product 
+app.get('/product/:advertise', async (req, res) => {
     
     try {
-        const varifySeller = req.params.varifySeller;
-        console.log(varifySeller);
-        const query = { varifySeller: varifySeller }
+        const boostStatus = req.params.advertise;
+        const query = { boostStatus: boostStatus }
         const result = await productsCollection.find(query).toArray()
         res.send(result)
     } catch (error) {
         console.log(error);
     }
 })
-
-
+// put products for boosting 
 app.put('/products/boost/:id', async (req, res) => {
     const id = req.params.id;
     const filter = { _id: ObjectId(id) }
@@ -143,7 +140,7 @@ app.put('/products/boost/:id', async (req, res) => {
     res.send(result)
 
 })
-
+// delete products by id
 app.delete('/products/:id', async (req, res) =>{
   try {
       const id = req.params.id;
@@ -156,6 +153,20 @@ app.delete('/products/:id', async (req, res) =>{
 })
 
 
+
+
+// post bookings
+app.post('/bookings', async (req, res) => {
+    try {
+        const booking = req.body;
+        const result = await bookingsCollection.insertOne(booking)
+        res.send(result)
+    } catch (error) {
+        console.log(error);
+    }
+
+})
+// booking get by email
 app.get('/bookings', async (req, res) => {
   try {
       const email = req.query.email;
@@ -166,18 +177,15 @@ app.get('/bookings', async (req, res) => {
     console.log(error);
   }
 })
-
-app.post('/bookings', async (req, res) => {
-  try {
-      const booking = req.body;
-      const result = await bookingsCollection.insertOne(booking)
-      res.send(result)
-  } catch (error) {
-    console.log(error);
-  }
-
+// get bookings by id
+app.get('/bookings/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) }
+    console.log(query);
+    const result = await bookingsCollection.findOne(query)
+    res.send(result)
 })
-
+// bookings delete by id
 app.delete('/bookings/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) }
@@ -186,16 +194,11 @@ app.delete('/bookings/:id', async (req, res) => {
     res.send(result)
 })
 
-app.get('/bookings/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) }
-    console.log(query);
-    const result = await bookingsCollection.findOne(query)
-    res.send(result)
-})
 
 
 
+
+// post users
 app.post('/users', async (req, res) => {
     try {
         const user = req.body;
@@ -206,14 +209,19 @@ app.post('/users', async (req, res) => {
         console.log(error);
     }
 })
+// get user by role
+app.get('/user/:seller', async (req, res) => {
 
-app.get('/users', async (req, res) => {
-    const query = {}
-    const result = await usersCollection.find(query).toArray()
-    res.send(result)
+    try {
+        const role = req.params.seller;
+        const query = { role: role }
+        const result = await usersCollection.find(query).toArray()
+        res.send(result)
+    } catch (error) {sellerStatus
+        console.log(error);
+    }
 })
-
-// get admin api 
+// get admin api by email
 app.get('/user/admin/:email', async (req, res) => {
     try {
 
@@ -228,7 +236,7 @@ app.get('/user/admin/:email', async (req, res) => {
         console.log(error);
     }
 })
-// get seller api 
+// get seller api by email
 app.get('/user/seller/:email', async (req, res) => {
     try {
 
@@ -243,7 +251,7 @@ app.get('/user/seller/:email', async (req, res) => {
         console.log(error);
     }
 })
-// get Buyer api 
+// get Buyer api by email
 app.get('/user/buyer/:email', async (req, res) => {
     try {
 
@@ -258,18 +266,7 @@ app.get('/user/buyer/:email', async (req, res) => {
         console.log(error);
     }
 })
-
-
-
-
-app.delete('/users/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) }
-    const result = await usersCollection.deleteOne(query)
-    res.send(result)
-})
-
-
+// put user verify
 app.put('/users/verify/:id', async (req, res) => {
     const id = req.params.id;
     const filter = { _id: ObjectId(id) }
@@ -283,26 +280,29 @@ app.put('/users/verify/:id', async (req, res) => {
     res.send(result)
 
 })
+// delete users by id
+app.delete('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) }
+    const result = await usersCollection.deleteOne(query)
+    res.send(result)
+})
 
 
 
-const calculateOrderAmount = (items) => {
-
-    return 1400;
-};
-
+// payment intent
 app.post("/create-payment-intent", async (req, res) => {
     try {
-        const { booking } = req.body;
-        const price = booking.price;
+        const { price } = req.body;
+        console.log(price);
         const amount = price * 100;
 
         // Create a PaymentIntent with the order amount and currency
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: calculateOrderAmount(items),
+
             currency: "usd",
             amount: amount,
-            payment_methods_types: [
+           "payment_method_types": [
                 "card"
             ]
         });
