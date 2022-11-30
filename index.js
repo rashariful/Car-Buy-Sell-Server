@@ -116,6 +116,33 @@ app.get('/products/:brand', async (req, res) => {
     }
 })
 
+app.get('/products/:boost', async (req, res) => {
+    
+    try {
+        const varifySeller = req.params.varifySeller;
+        console.log(varifySeller);
+        const query = { varifySeller: varifySeller }
+        const result = await productsCollection.find(query).toArray()
+        res.send(result)
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+app.put('/products/boost/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: ObjectId(id) }
+    const options = { upsert: true }
+    const updatedDoc = {
+        $set: {
+            boostStatus: 'boost'
+        }
+    }
+    const result = await productsCollection.updateOne(filter, updatedDoc, options)
+    res.send(result)
+
+})
 
 app.delete('/products/:id', async (req, res) =>{
   try {
