@@ -1,4 +1,4 @@
-# Completed the used car museum web application. Front-end Back-end server side and MongoDB database used.
+# Completed the car Buy/Sell web application. Front-end Back-end server side and MongoDB database used.
 
 This web application has admin and seller different dashboards to manage their Business.
 

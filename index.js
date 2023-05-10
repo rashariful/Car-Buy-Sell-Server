@@ -128,6 +128,7 @@ app.get('/product/:advertise', async (req, res) => {
 })
 // put products for boosting 
 app.put('/products/boost/:id', async (req, res) => {
+    
     const id = req.params.id;
     const filter = { _id: ObjectId(id) }
     const options = { upsert: true }
@@ -337,8 +338,8 @@ app.post('/payments', async (req, res) => {
 
 
 app.get('/', (req, res) => {
-    res.send('assingment server is running')
+    res.send('Car Buy/Sell Server is Running')
 })
 app.listen(port, () => {
-    console.log(`assingment server is running on: ${port}`);
+    console.log(`Car Buy/Sell Server is Running on: ${port}`);
 })
