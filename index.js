@@ -237,6 +237,16 @@ app.get("/users", async (req, res) =>{
         console.log(error.message)
     }
 })
+// get all sellers
+app.get("/seller", async (req, res) =>{
+    try {
+        const AllSeller = await usersCollection.find({role : {$in:  ["seller"]} }).toArray()
+        res.send(AllSeller)
+        console.log(query)
+    } catch (error) {
+        console.log(error.message)
+    }
+})
 // get user by role
 app.get('/user/:seller', async (req, res) => {
 
