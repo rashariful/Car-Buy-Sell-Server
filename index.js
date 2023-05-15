@@ -80,7 +80,7 @@ async function dbConnect() {
 }
 dbConnect()
 
-// post product
+// Creat Product
 app.post('/products', async (req, res) =>{
    try {
        const product = req.body;
@@ -208,6 +208,15 @@ app.post('/users', async (req, res) => {
        
     } catch (error) {
         console.log(error);
+    }
+})
+// get all users
+app.get("/users", async (req, res) =>{
+    try {
+        const AllUsers = await usersCollection.find({}).toArray()
+        res.send(AllUsers)
+    } catch (error) {
+        console.log(error.message)
     }
 })
 // get user by role
