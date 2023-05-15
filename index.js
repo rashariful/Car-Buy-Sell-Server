@@ -91,6 +91,15 @@ app.post('/products', async (req, res) =>{
     
    }
 })
+// get all products
+app.get("/products", async (req, res) =>{
+    try {
+        const products = await productsCollection.find({}).toArray()
+        res.send(products)
+    } catch (error) {
+        console.log(error.message)
+    }
+})
 // get products by email
 app.get('/products', async (req, res) => {
     try {
@@ -166,6 +175,15 @@ app.post('/bookings', async (req, res) => {
         console.log(error);
     }
 
+})
+// get all Bookings
+app.get("/bookings", async (req, res) =>{
+    try {
+        const bookings = await bookingsCollection.find({}).toArray()
+        res.send(bookings)
+    } catch (error) {
+        console.log(error.message)
+    }
 })
 // booking get by email
 app.get('/bookings', async (req, res) => {
